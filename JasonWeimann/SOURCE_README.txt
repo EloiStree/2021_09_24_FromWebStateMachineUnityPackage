@@ -1,0 +1,4 @@
+All the script in this folder are own/created by Jason Weimann https://www.youtube.com/watch?v=V75hgcsCGOM
+I am just making them useable as reference package to be used in my project as the code has an open source access on his website:
+- https://game.courses/architecture?ref=15
+- https://www.youtube.com/redirect?event=video_description&redir_token=QUFFLUhqbExCNHNJdUM1b1RfaExXM3UydENXTUZfNzJLd3xBQ3Jtc0tuMzF6VE93cGY3b0RGMnNlYmNwRXh4dHlPVG9JNWliNERta291bmVHNWxueG5ESThLYlpoQmJWTzRNa3ZYNl9lT2RUeF9JbnlsNmhRaURQdFBoNVQteVlHZ2JPdzFweVJzNEtCZ05TcDVTOGpHR1EzRQ&q=https%3A%2F%2Fgame.courses%2Fbots-ai-statemachines%2F
