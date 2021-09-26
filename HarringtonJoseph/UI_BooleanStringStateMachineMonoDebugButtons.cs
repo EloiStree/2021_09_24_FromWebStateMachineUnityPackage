@@ -50,8 +50,12 @@ public class UI_BooleanStringStateMachineMonoDebugButtons : MonoBehaviour
     {
        TryToMakeTransitionFromTransitionName( m_nextTransaction[index].GetComponentInChildren<Text>().text);
     }
+    private void Start()
+    {
+        RefreshUI();
+    }
 
-    public void Update()
+    public void RefreshUI()
     {
         m_linked.GetCurrentState(out string currentState);
         if(m_currentState)

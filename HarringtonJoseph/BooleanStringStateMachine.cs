@@ -1,27 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class BooleanStringStateMachineUtility {
-    public static void TrimAndLowCaseAll(ref BooleanStringStateMachine target)
-    {
-        target.m_machineName = target.m_machineName.ToLower().Trim();
-        target.m_initialState = target.m_initialState.ToLower().Trim();
-        for (int i = 0; i < target.m_states.m_states.Length; i++)
-        {
-            target.m_states.m_states[i] = target.m_states.m_states[i].ToLower().Trim();
 
-        }
-        for (int i = 0; i < target.m_transactions.m_transactions.Length; i++)
-        {
-            target.m_transactions.m_transactions[i].m_transactionDestination = target.m_transactions.m_transactions[i].m_transactionDestination.ToLower().Trim();
-            target.m_transactions.m_transactions[i].m_transactionSource = target.m_transactions.m_transactions[i].m_transactionSource.ToLower().Trim();
-            target.m_transactions.m_transactions[i].m_transactionTriggerName = target.m_transactions.m_transactions[i].m_transactionTriggerName.ToLower().Trim();
-        }
-    }
-}
-
+[System.Serializable]
 public struct BooleanStringStateMachine 
 {
     public string m_machineName;
@@ -45,18 +29,18 @@ public struct BooleanStringStateMachine
 [System.Serializable]
 public abstract class AbstractBooleanStringStateMachineRunning : IBooleanStringStateMachineRunning
 {
-    public BooleanStringStateMachine m_initialInformation;
+    [SerializeField]
+    protected StringFSMDeductedScriptable m_initialInformation;
 
-    public AbstractBooleanStringStateMachineRunning(BooleanStringStateMachine initialInformation)
+    public AbstractBooleanStringStateMachineRunning(StringFSMDeductedScriptable initialInformation)
     {
         m_initialInformation = initialInformation;
-        BooleanStringStateMachineUtility.TrimAndLowCaseAll(ref m_initialInformation);
     }
 
-    public abstract void AddTransitionFailListener(TransitionFail listener);
+    public abstract void AddTransitionFailListener(TransitionRequestFail listener);
     public abstract void ForceTransition(in string transitionName, in string stateSource, in string stateDestination);
     public abstract void GetCurrentState(out string name);
-    public abstract void RemoveTransitionFailListener(TransitionFail listener);
+    public abstract void RemoveTransitionFailListener(TransitionRequestFail listener);
     public abstract void TryToTriggerTransition(in string name);
     public abstract void TryToTriggerTransition(in string name, out bool scuced);
     public abstract void TryToTriggerTransition(in string name, out bool succed, out string whatHappend);
@@ -76,8 +60,8 @@ public interface IBooleanStringStateMachineRunning {
 
     public void GetCurrentState(out string name);
 
-    public void AddTransitionFailListener(TransitionFail listener);
-    public void RemoveTransitionFailListener(TransitionFail listener);
+    public void AddTransitionFailListener(TransitionRequestFail listener);
+    public void RemoveTransitionFailListener(TransitionRequestFail listener);
 }
 
 public interface IBooleanStringStateMachinePlus: IBooleanStringStateMachineRunning
@@ -93,97 +77,87 @@ public interface IJobableBooleanStringStateConvertion{
 }
 
 
-public delegate void TransitionFail(string transitionName, string whatHappened);
-public delegate void TransitionSuccess(string transitionName, string sourceState, string destinationState);
-
-
-public class ConvertBooleanStringToUINHolder {
-    public static void Convert(in BooleanStringStateMachine stateMachine, out TransitionsAndExistingState uintHolder) {
-        uintHolder = new TransitionsAndExistingState();
-        uintHolder.Init((uint)stateMachine.m_states.m_states.Length, (uint)stateMachine.m_transactions.m_transactions.Length);
-
-
-        uint index = 0;
-        foreach (var item in stateMachine.m_transactions.m_transactions)
-        {
-            TransitionAsUInt transaction = new TransitionAsUInt();
-            transaction.m_transitionId = index;
-            transaction.m_sourceStateId = GetIndexOf( stateMachine.m_states.m_states, item.m_transactionSource);
-            transaction.m_destinationStateId = GetIndexOf( stateMachine.m_states.m_states, item.m_transactionDestination);
-            uintHolder.m_transitionsAsIndex[index] = transaction;
-            index++;
-        }
-    }
-
-    private static uint GetIndexOf(string[] states, string stateName)
-    {
-        for (int i = 0; i < states .Length; i++)
-        {
-            if (states[i].Length == stateName.Length && states[i].IndexOf(stateName)==0)
-            {
-                return (uint)i;
-            }
-        }
-        throw new System.Exception("Transition should go from one state to an other, but the state was not found.");
-    }
-}
 
 
 [System.Serializable]
 public class FirstExperimentBoolStrSM : AbstractBooleanStringStateMachineRunning, IBooleanStringStateMachinePlus
 {
-    public BooleanStringStateMachine m_givenStateMachine;
-    public TransitionsAndExistingState m_createdIndexes;
-    public Dictionary<string, List<uint>> m_transitionsIndex = new Dictionary<string, List<uint>>();
-    public Dictionary<string, uint> m_statesIndex = new Dictionary<string, uint>();
+    public StringFSMAccess m_fsm;
     public string m_currentState;
+    public uint m_currentStateId;
+
     public string m_previousState;
+    public uint m_previousStateId;
 
-    public FirstExperimentBoolStrSM(BooleanStringStateMachine initialInformation) : base(initialInformation)
+   
+
+    public string m_previousTransaction;
+    public uint m_previousTransactionId;
+
+    public TransitionRequestSuccess     m_transitionSuccess;
+    public TransitionRequestFail        m_transitionFail;
+
+    public UnitySFSM_State2StateName    m_state2StateChange;
+    public UnitySFSM_Transition         m_transitionCalled;
+
+    internal void Init(StringFSMDeductedScriptable initialInformation)
     {
-        m_givenStateMachine = initialInformation;
-        m_currentState = initialInformation.m_initialState;
-        m_previousState = initialInformation.m_initialState;
-        m_createdIndexes = new TransitionsAndExistingState();
-        ConvertBooleanStringToUINHolder.Convert(in initialInformation, out m_createdIndexes);
-        uint index = 0;
-        foreach (var item in m_initialInformation.m_states.m_states)
-        {
-            m_statesIndex.Add(item, index);
-            index++;
-        }
-        index = 0;
-        foreach (var item in m_initialInformation.m_transactions.m_transactions)
-        {
-            if (!m_transitionsIndex.ContainsKey(item.m_transactionTriggerName)) {
-                m_transitionsIndex.Add(item.m_transactionTriggerName, new List<uint>());
-            }
-            m_transitionsIndex[item.m_transactionTriggerName].Add(index);
-            index++;
-        }
+        m_initialInformation = initialInformation;
+        m_fsm = new StringFSMAccess(initialInformation);
+        m_fsm.GetInitState(out m_currentState);
+        m_currentStateId = GetStateIdOf(m_currentState);
+
+        m_previousState = m_currentState;
+        m_previousStateId = m_currentStateId;
     }
 
-    public override void AddTransitionFailListener(TransitionFail listener)
+    public FirstExperimentBoolStrSM(StringFSMDeductedScriptable initialInformation) : base(initialInformation)
     {
-        throw new System.NotImplementedException();
+        Init(initialInformation);
+
     }
 
+    public bool HasPreviousState() { return string.IsNullOrEmpty(m_previousState); }
+    public bool HasPreviousTransition() { return string.IsNullOrEmpty(m_previousTransaction); }
+
+    public void SetCurrentState(in uint stateId) {
+        m_currentStateId = stateId;
+        m_fsm.GetNameOfState(in stateId, out m_currentState);
+    }
+    public void SetPreviousState(in uint stateId)
+    {
+        m_previousStateId = stateId;
+        m_fsm.GetNameOfState(in stateId, out m_previousState);
+
+    }
+    public void SetPreviousTransaction(in uint transactionId)
+    {
+        m_previousTransactionId = transactionId;
+        m_fsm.GetNameOfTransaction(in transactionId, out m_previousTransaction);
+
+    }
+
+    public override void AddTransitionFailListener(TransitionRequestFail listener)
+    {
+        m_transitionFail += listener;
+    }
     public override void ForceTransition(in string transitionName, in string stateSource, in string stateDestination)
     {
         throw new System.NotImplementedException();
     }
-    public void GetAllTransitionDestinationOfState(in string stateName, out IEnumerable<uint> transactions)
-    {
-        uint state = GetStateIdOf(stateName);
-        m_createdIndexes.GetDestinationTransactionOfState(state, out transactions);
-
-    }
-
     private uint GetStateIdOf(string stateName)
     {
-        return m_statesIndex[stateName.ToLower().Trim()];
+        m_fsm.GetIdOfState(in stateName, out uint id);
+        return id;
     }
 
+    public void GetAllTransitionDestinationOfState(in string stateName, out IEnumerable<uint> transactions)
+    {
+        m_fsm.GetIdOfState(in stateName, out uint stateId);
+        m_fsm.GetStateNextTransactionsIndex( stateId, out transactions);
+    }
+
+  
     public void GetAllTransitionDestinationOfState(in string stateName, out IEnumerable<StringTransaction> transactions)
     {
         GetAllTransitionDestinationOfState(in stateName, out IEnumerable<uint> tIds);
@@ -192,16 +166,27 @@ public class FirstExperimentBoolStrSM : AbstractBooleanStringStateMachineRunning
 
     public void GetAllTransitionLinkedToState(in string stateName, out IEnumerable<uint> transactions)
     {
-        uint state = GetStateIdOf(stateName);
-        m_createdIndexes.GetSourceTransactionsOfState(state, out IEnumerable<uint> transactionsIdsDestination);
-        m_createdIndexes.GetDestinationTransactionOfState(state, out IEnumerable<uint> transactionsIdsSource);
+        m_fsm.GetIdOfState(in stateName, out uint stateId);
+        m_fsm.GetStatePreviousAndNextTransactionsIndex(in stateId, out transactions);
+     
 
-        transactions = Enumerable.Concat(transactionsIdsSource, transactionsIdsDestination);
     }
     public void GetAllTransitionLinkedToState(in string stateName, out IEnumerable<StringTransaction> transactions)
     {
 
         GetAllTransitionLinkedToState(in stateName, out IEnumerable<uint> tIds);
+        transactions = GetTransactionsFromUints(tIds);
+    }
+
+   
+    public void GetAllTransitionSourceOf(in string stateName, out IEnumerable<uint> transactions)
+    {
+        m_fsm.GetIdOfState(in stateName, out uint stateId);
+        m_fsm.GetStatePreviousTransactionsIndex(in stateId, out transactions);
+    }
+    public void GetAllTransitionSourceOf(in string stateName, out IEnumerable<StringTransaction> transactions)
+    {
+        GetAllTransitionSourceOf(in stateName, out IEnumerable<uint> tIds);
         transactions = GetTransactionsFromUints(tIds);
     }
 
@@ -211,23 +196,13 @@ public class FirstExperimentBoolStrSM : AbstractBooleanStringStateMachineRunning
         List<StringTransaction> t = new List<StringTransaction>();
         foreach (uint idIndex in tIds)
         {
-            t.Add(m_givenStateMachine.GetTransaction(idIndex));
+            t.Add(m_fsm.GetTransactionInfo(idIndex));
+
         }
         transactions = t;
         return transactions;
     }
 
-    public void GetAllTransitionSourceOf(in string stateName, out IEnumerable<uint> transactions)
-    {
-        uint state = GetStateIdOf(stateName);
-        m_createdIndexes.GetSourceTransactionsOfState(state, out transactions);
-
-    }
-    public void GetAllTransitionSourceOf(in string stateName, out IEnumerable<StringTransaction> transactions)
-    {
-        GetAllTransitionSourceOf(in stateName, out IEnumerable<uint> tIds);
-        transactions = GetTransactionsFromUints(tIds);
-    }
 
     public override void GetCurrentState(out string currentState)
     {
@@ -238,9 +213,9 @@ public class FirstExperimentBoolStrSM : AbstractBooleanStringStateMachineRunning
         previousState = m_previousState;
     }
 
-    public override void RemoveTransitionFailListener(TransitionFail listener)
+    public override void RemoveTransitionFailListener(TransitionRequestFail listener)
     {
-        throw new System.NotImplementedException();
+        m_transitionFail -= listener;
     }
 
     public override void TryToTriggerTransition(in string name)
@@ -255,8 +230,7 @@ public class FirstExperimentBoolStrSM : AbstractBooleanStringStateMachineRunning
 
     public override void TryToTriggerTransition(in string name, out bool succed, out string whatHappend)
     {
-
-
+      
         GetAllTransitionDestinationOfState(in m_currentState, out IEnumerable<StringTransaction> transactions);
      
         if (transactions == null || transactions.Count() == 0)
@@ -271,32 +245,41 @@ public class FirstExperimentBoolStrSM : AbstractBooleanStringStateMachineRunning
             if (item.m_transactionTriggerName == transactionNameToLook) {
                 m_previousState = m_currentState;
                 m_currentState = item.m_transactionDestination;
+                if (m_transitionSuccess != null)
+                    m_transitionSuccess(in transactionNameToLook, in m_previousState,in  m_currentState);
+                m_state2StateChange?.Invoke(m_previousState, m_currentState);
+                m_transitionCalled?.Invoke(m_fsm.GetTransactionInfo(transactionNameToLook));
                 succed = true;
                 whatHappend = "";
                 return;
             }
         }
 
+       
         succed = false;
-        whatHappend = "Transaction not found";
+        whatHappend = "Transaction not found"; 
+        if (m_transitionFail != null)
+            m_transitionFail(in transactionNameToLook, in whatHappend);
+        m_state2StateChange?.Invoke(m_previousState, m_currentState);
     }
 
     public void GetAllTransitions( out IEnumerable< StringTransaction> transactions)
     {
-        transactions=m_givenStateMachine.m_transactions.m_transactions;
+        m_fsm.GetAllTransitions(out transactions);
     }
 
-    public void GetAllTransitions( out IEnumerable<string> transactions)
+    public void GetAllTransitionsDistinctName( out IEnumerable<string> transactions)
     {
-        transactions = m_givenStateMachine.m_transactions.m_transactions
-            .Select(k=>k.m_transactionTriggerName);
-
+        m_fsm.GetAllTransitionsDistinctName(out transactions);
     }
 
     public void GetNextTransactions(out IEnumerable<string> transactionsName)
     {
-        GetAllTransitionDestinationOfState(in m_currentState, out IEnumerable<StringTransaction> transactions);
-        transactionsName = transactions.Select(k => k.m_transactionTriggerName);
+        m_fsm.GetStateNextTransactionsName(in m_currentStateId, out transactionsName);
+    }
+    public void GetPreviousTransactions(out IEnumerable<string> transactionsName)
+    {
+        m_fsm.GetStatePreviousTransactionsName(in m_currentStateId, out transactionsName);
     }
     public void GetNextTransactions(out IEnumerable<StringTransaction> transactions)
     {

@@ -15,13 +15,12 @@ public class UI_BooleanStringStateMachineMonoDebug : MonoBehaviour
     public RawImage m_imageDebugger;
     public StateToTexture[] m_stateToImage;
 
-    
-    void Update()
+    private void Start()
     {
         RefreshStateUI();
     }
 
-    private void RefreshStateUI()
+    public  void RefreshStateUI()
     {
         m_source.GetCurrentState(out string state);
         if (m_currentState != null)

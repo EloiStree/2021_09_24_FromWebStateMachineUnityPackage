@@ -5,14 +5,15 @@ using UnityEngine;
 
 public class BooleanStringStateMachineMono : MonoBehaviour, IBooleanStringStateMachineRunning, IBooleanStringStateMachinePlus
 {
+
+
+
     [Header("In")]
-    public string m_machineAliasName;
-    public string m_initialState;
+    public StringFSMDeductedScriptable m_stringStateMachine;
 
     public void TryToTriggerTransitionWithState(string stateName)
     {
         m_firstBooleanType.GetNextTransactions(out IEnumerable<StringTransaction> transactionsName);
-
         foreach (var item in transactionsName)
         {
             if (item.m_transactionDestination == stateName) { 
@@ -22,15 +23,18 @@ public class BooleanStringStateMachineMono : MonoBehaviour, IBooleanStringStateM
         }
     }
 
-    public StringExistingStates m_states;
-    public StringExistingTransactions m_transactions;
 
     [Header("Debug")]
     public FirstExperimentBoolStrSM m_firstBooleanType;
+    public AbstractBooleanStringStateMachineRunning m_stateMachine;
+
+    public TransitionRequestFail m_failListeners;
+    public TransitionRequestSuccess m_successListeners;
+
 
     public void GetAllTransactions(out IEnumerable<string> transactionsName)
     {
-        m_firstBooleanType.GetAllTransitions(out transactionsName);
+        m_firstBooleanType.GetAllTransitionsDistinctName(out transactionsName);
     }
     internal void GetNextTransactions(out IEnumerable<string> transactionsName)
     {
@@ -48,12 +52,6 @@ public class BooleanStringStateMachineMono : MonoBehaviour, IBooleanStringStateM
     }
 
 
-    public AbstractBooleanStringStateMachineRunning m_stateMachine;
-
-    public void AddTransitionFailListener(TransitionFail listener)
-    {
-        throw new System.NotImplementedException();
-    }
 
     public void ForceTransition(in string transitionName, in string stateSource, in string stateDestination)
     {
@@ -86,32 +84,39 @@ public class BooleanStringStateMachineMono : MonoBehaviour, IBooleanStringStateM
     {
         m_firstBooleanType.GetPreviousState(out previousState);
     }
-    public void RemoveTransitionFailListener(TransitionFail listener)
-    {
-        throw new System.NotImplementedException();
-    }
-
+   
     public void TryToTriggerTransition(in string name)
     {
         m_firstBooleanType.TryToTriggerTransition(in name);
     }
 
-    public void TryToTriggerTransition(in string name, out bool scuced)
+    public void TryToTriggerTransition(in string name, out bool succed)
     {
-        throw new System.NotImplementedException();
+        m_firstBooleanType.TryToTriggerTransition(in name, out succed);
     }
 
     public void TryToTriggerTransition(in string name, out bool succed, out string whatHappend)
     {
-        throw new System.NotImplementedException();
+        m_firstBooleanType.TryToTriggerTransition(in name, out succed, out whatHappend);
     }
 
     void Start()
     {
-        m_firstBooleanType = new FirstExperimentBoolStrSM(new BooleanStringStateMachine(m_machineAliasName, m_initialState, m_states, m_transactions));
+        m_firstBooleanType.Init(m_stringStateMachine);
         m_stateMachine = m_firstBooleanType;
+        
 
 
     }
+
+    public void AddTransitionFailListener(TransitionRequestFail listener)
+    {
+        m_failListeners += listener;
+    }
+    public void RemoveTransitionFailListener(TransitionRequestFail listener)
+    {
+        m_failListeners -= listener;
+    }
+
 
 }
