@@ -49,6 +49,7 @@ public struct StateAndTransactionIntegerRegister
 [System.Serializable]
 public struct TransitionAsIntegerByte
 {
+    //0
     public byte m_transitionId;
     public byte m_sourceStateId;
     public byte m_destinationStateId;
