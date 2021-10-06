@@ -49,31 +49,31 @@ public abstract class AbstractBooleanStringStateMachineRunning : IBooleanStringS
 
 public interface IBooleanStringStateMachineRunning {
 
-    public void TryToTriggerTransition(in string name);
-    public void TryToTriggerTransition(in string name, out bool scuced);
-    public void TryToTriggerTransition(in string name, out bool succed, out string whatHappend);
+     void TryToTriggerTransition(in string name);
+     void TryToTriggerTransition(in string name, out bool scuced);
+     void TryToTriggerTransition(in string name, out bool succed, out string whatHappend);
 
     /// <summary>
     /// At your own risk.
     /// </summary>
-    public void ForceTransition(in string transitionName, in string stateSource, in string stateDestination);
+     void ForceTransition(in string transitionName, in string stateSource, in string stateDestination);
 
-    public void GetCurrentState(out string name);
+     void GetCurrentState(out string name);
 
-    public void AddTransitionFailListener(TransitionRequestFail listener);
-    public void RemoveTransitionFailListener(TransitionRequestFail listener);
+     void AddTransitionFailListener(TransitionRequestFail listener);
+     void RemoveTransitionFailListener(TransitionRequestFail listener);
 }
 
 public interface IBooleanStringStateMachinePlus: IBooleanStringStateMachineRunning
 {
-    public void GetAllTransitionLinkedToState(in string stateName, out IEnumerable<StringTransaction> transactions);
-    public void GetAllTransitionDestinationOfState(in string stateName, out IEnumerable<StringTransaction> transactions);
-    public void GetAllTransitionSourceOf(in string stateName, out IEnumerable<StringTransaction> transactions);
+     void GetAllTransitionLinkedToState(in string stateName, out IEnumerable<StringTransaction> transactions);
+     void GetAllTransitionDestinationOfState(in string stateName, out IEnumerable<StringTransaction> transactions);
+     void GetAllTransitionSourceOf(in string stateName, out IEnumerable<StringTransaction> transactions);
 }
 
 public interface IJobableBooleanStringStateConvertion{
-    public uint GetStateAsId(in string stateName);
-    public uint GetTransactionAsId(in string stateName);
+     uint GetStateAsId(in string stateName);
+     uint GetTransactionAsId(in string stateName);
 }
 
 
