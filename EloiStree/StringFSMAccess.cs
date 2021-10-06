@@ -40,6 +40,27 @@ public  class StringFSMAccess
         StringFSMDeductionUtility.ConvertTransitionName(in transactionName, out count, out transactionId, in m_source);
     }
 
+  
+    public void HasTransactionBetweenStates(in byte fromStateIndex, in byte toStateIndex, out bool found, out byte transactionId)
+    {
+        for (byte i = 0; i < m_source.m_uintIndexes.m_transactionsCount; i++)
+        {
+            if (
+                m_source.m_uintIndexes.m_transitionsAsIndex[i].m_sourceStateId == fromStateIndex &&
+            m_source.m_uintIndexes.m_transitionsAsIndex[i].m_destinationStateId == toStateIndex) {
+                found = true;
+                transactionId = i;
+                return;
+            }
+
+        }
+        found = false;
+        transactionId = 0;
+    }
+
+
+   
+
     public void GetInitState(out string stateName)
     {
         stateName = m_source.m_source.m_stringFSM.m_initialState;
