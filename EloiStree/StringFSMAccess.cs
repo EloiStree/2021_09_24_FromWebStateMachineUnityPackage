@@ -44,9 +44,34 @@ public  class StringFSMAccess
     {
         stateName = m_source.m_source.m_stringFSM.m_initialState;
     }
+
+    
+
     public void GetInitState(out byte stateId)
     {
         GetIdOfState(in m_source.m_source.m_stringFSM.m_initialState, out stateId);
+    }
+
+    public void HasNextStateForTransition(in byte currentStateId, in string nextTransitionName, out bool found, out byte nextState)
+    {
+        
+        GetStateNextTransactionsIndex(currentStateId, out IEnumerable<byte> transactionsId);
+
+        string tName = "";
+        foreach (byte tId in transactionsId)
+        {
+            GetNameOfTransaction(in tId, out tName);
+            if(tName.Length== nextTransitionName.Length 
+                && tName.IndexOf(nextTransitionName,StringComparison.OrdinalIgnoreCase) == 0 )
+            {
+                nextState = m_source.m_uintIndexes.m_transitionsAsIndex[tId].m_destinationStateId;
+                found = true;
+                return;
+            }
+
+        }
+        found = false;
+        nextState = 0;
     }
 
     public void GetRandomNextTransactionIdFromTransaction(in byte transactionId, out byte nextTranscationId)
