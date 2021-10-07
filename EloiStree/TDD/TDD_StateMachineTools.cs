@@ -28,7 +28,7 @@ public class TDD_StateMachineTools : MonoBehaviour, IContainSFSMDeductedInfo,
     [Header("Event")]
     public StateChangeFromToIndexEvent m_stateChangeBytes;
     public StateChangeIndexStuctEvent m_stateChangeStruct;
-    public FSMColorEvent m_stateChangeFsmEnum;
+   // public FSMColorEvent m_stateChangeFsmEnum;
 
 
     private StringFSMAccess m_access;
@@ -61,8 +61,8 @@ public class TDD_StateMachineTools : MonoBehaviour, IContainSFSMDeductedInfo,
         m_changeStateListeners.NotifyNewChange(in m_lastChange.m_fromStateIndex, in m_lastChange.m_toStateIndex);
         m_stateChangeBytes.Invoke(m_lastChange.m_fromStateIndex, m_lastChange.m_toStateIndex);
         m_stateChangeStruct.Invoke(m_lastChange);
-        m_stateChangeFsmEnum.Invoke((S_RGBSTATEMACHINE)m_lastChange.m_fromStateIndex,
-            (S_RGBSTATEMACHINE)m_lastChange.m_toStateIndex);
+        //m_stateChangeFsmEnum.Invoke((S_RGBSTATEMACHINE)m_lastChange.m_fromStateIndex,
+        //    (S_RGBSTATEMACHINE)m_lastChange.m_toStateIndex);
     }
 
 
@@ -101,6 +101,6 @@ public class TDD_StateMachineTools : MonoBehaviour, IContainSFSMDeductedInfo,
         m_changeStateListeners.NotifyNewChange(fromState, toState);
     }
 
-    [System.Serializable]
-    public class FSMColorEvent : UnityEvent<S_RGBSTATEMACHINE, S_RGBSTATEMACHINE>{}
+    //[System.Serializable]
+    //public class FSMColorEvent : UnityEvent<S_RGBSTATEMACHINE, S_RGBSTATEMACHINE>{}
 }
