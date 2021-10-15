@@ -6,7 +6,31 @@ using UnityEngine;
 
 namespace Eloi {
 
+
     [System.Serializable]
+    public struct StateChangeWithFineState {
+        public IContainSFSMDeductedInfo m_sourceRef;
+        public byte m_fromStateIndex;
+        public byte m_toStateIndex;
+
+        public void SetWith( in IContainSFSMDeductedInfo sfsm, in byte fromStateIndex, in byte toStateIndex)
+        {
+            m_sourceRef= sfsm;
+            m_fromStateIndex = fromStateIndex;
+            m_toStateIndex = toStateIndex;
+        }
+
+        public void SetWith(in IContainSFSMDeductedInfo sfsm, in StateChange change)
+        {
+            m_sourceRef = sfsm;
+            m_fromStateIndex = change.m_fromStateIndex;
+            m_toStateIndex = change.m_toStateIndex;
+        }
+    }
+
+
+
+[System.Serializable]
     public struct StateChange 
     {
         public byte m_fromStateIndex;

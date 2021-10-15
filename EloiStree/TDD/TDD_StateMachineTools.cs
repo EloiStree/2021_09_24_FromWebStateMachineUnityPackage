@@ -20,15 +20,16 @@ public class TDD_StateMachineTools : MonoBehaviour, IContainSFSMDeductedInfo,
 
 
     [Header("Observer")]
-    public StateEnterPassif m_listentToStateEntering;
-    public StateExitPassif m_listentToStateExiting;
+    public StateEnterPassif m_listenToStateEntering;
+    public StateExitPassif m_listenToStateExiting;
     public StateEnterFromMultiplePassif m_listenToMutipleOrigneEntering;
     public StateExitToMultiplePassif m_listenToMutipleOrigneExit;
 
     [Header("Event")]
     public StateChangeFromToIndexEvent m_stateChangeBytes;
     public StateChangeIndexStuctEvent m_stateChangeStruct;
-   // public FSMColorEvent m_stateChangeFsmEnum;
+    public StateChangeIndexWithFineStateStructEvent m_stateChangeWithSourceStruct;
+    // public FSMColorEvent m_stateChangeFsmEnum;
 
 
     private StringFSMAccess m_access;
@@ -52,8 +53,8 @@ public class TDD_StateMachineTools : MonoBehaviour, IContainSFSMDeductedInfo,
             m_lastForced.SetWith(m_currentState, newStateValue);
 
         m_currentState = newStateValue;
-        m_listentToStateEntering.NotifyNewChange(in m_lastChange);
-        m_listentToStateExiting.NotifyNewChange(in m_lastChange);
+        m_listenToStateEntering.NotifyNewChange(in m_lastChange);
+        m_listenToStateExiting.NotifyNewChange(in m_lastChange);
         m_listenToMutipleOrigneEntering.NotifyNewChange(in m_lastChange);
         m_listenToMutipleOrigneExit.NotifyNewChange(in m_lastChange);
 
@@ -61,6 +62,10 @@ public class TDD_StateMachineTools : MonoBehaviour, IContainSFSMDeductedInfo,
         m_changeStateListeners.NotifyNewChange(in m_lastChange.m_fromStateIndex, in m_lastChange.m_toStateIndex);
         m_stateChangeBytes.Invoke(m_lastChange.m_fromStateIndex, m_lastChange.m_toStateIndex);
         m_stateChangeStruct.Invoke(m_lastChange);
+
+        StateChangeWithFineState changeWithSource = new StateChangeWithFineState();
+        changeWithSource.SetWith(this, in m_lastChange.m_fromStateIndex, in m_lastChange.m_toStateIndex);
+        m_stateChangeWithSourceStruct.Invoke(changeWithSource);
         //m_stateChangeFsmEnum.Invoke((S_RGBSTATEMACHINE)m_lastChange.m_fromStateIndex,
         //    (S_RGBSTATEMACHINE)m_lastChange.m_toStateIndex);
     }
