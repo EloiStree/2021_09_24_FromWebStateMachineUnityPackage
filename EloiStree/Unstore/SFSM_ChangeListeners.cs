@@ -63,7 +63,7 @@ namespace Eloi {
                 m_behindTheScene.m_previous = fS;
                 m_behindTheScene.m_current = tS;
                 if (newExit)
-                    m_enterEnumEvent.Invoke(source, m_behindTheScene.m_previous, m_behindTheScene.m_current);
+                    m_exitEnumEvent.Invoke(source, m_behindTheScene.m_previous, m_behindTheScene.m_current);
             }
 
             m_behindTheScene.m_enter.NotifyNewChange(toState);
@@ -110,12 +110,12 @@ namespace Eloi {
         public T m_observed;
         public T[] m_fromTracked;
         [Header("N To Enter")]
-        public StateChangeIndexWithFineStateEvent m_enterEvent;
-        public SpecificStateChangeEvent m_enterEnumEvent;
+        public StateChangeIndexWithFineStateEvent m_enterEvent= new StateChangeIndexWithFineStateEvent();
+        public SpecificStateChangeEvent m_enterEnumEvent= new SpecificStateChangeEvent ();
         [System.Serializable]
         public class SpecificStateChangeEvent : StateChangeIndexWithFineStateEnumEvent<T>
         { }
-        public BehindTheScene m_behindTheScene;
+        public BehindTheScene m_behindTheScene= new BehindTheScene();
 
         [System.Serializable]
         public class BehindTheScene
