@@ -1,0 +1,16 @@
+
+{                                                                   
+            "name": "be.eloistree.stringfinitestatemachineEditor",          
+    "references": ["be.eloistree.stringfinitestatemachine","be.activeme.termianldatacollectgame","be.activeme.ndafruitninjagranini","be.eloistree.stringkeyproperty"
+],                                                              
+    "optionalUnityReferences": [],                                  
+    "includePlatforms": [                                           
+        "Editor"                                                    
+    ],                                                              
+    "excludePlatforms": [],                                         
+    "allowUnsafeCode": false,                                       
+    "overrideReferences": false,                                    
+    "precompiledReferences": [],                                    
+    "autoReferenced": true,                                         
+    "defineConstraints": []                                         
+}                                                                   

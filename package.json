@@ -1,0 +1,23 @@
+
+{                                                                                
+  "name": "be.eloistree.stringfinitestatemachine",                              
+  "displayName": "String Finate State Machine for Job and Compute Shader",                        
+  "version": "0.0.1",                         
+  "unity": "2018.1",                             
+  "unityRelease": "",                             
+  "description": "",                         
+  "keywords": ["Script","Tool"],                       
+  "dependencies":{},     
+  "relatedPackages":{},     
+  "samples" : [],     
+  "author" : {
+"name":"",
+"mail":"",
+"url":""},     
+  "repository":{
+"type":"Git",
+"url":"https://github.com/EloiStree/2021_09_24_StringFSM4JobComputeAndECS.git",
+"footprint":"",
+"revision":""},     
+  "category": "Script"                   
+} 
